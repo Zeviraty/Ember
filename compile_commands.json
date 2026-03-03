@@ -1,0 +1,19 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-std=gnu11",
+      "-O2",
+      "-Iincludes",
+      "-c",
+      "-o",
+      "build/map.o",
+      "src/map.c"
+    ],
+    "directory": "/home/zev/ember",
+    "file": "/home/zev/ember/src/map.c",
+    "output": "/home/zev/ember/build/map.o"
+  }
+]

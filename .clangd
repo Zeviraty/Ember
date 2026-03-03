@@ -1,0 +1,9 @@
+CompileFlags:
+  Add:
+    - -Wall
+    - -Wextra
+    - -std=gnu11
+    - -O2
+    - -Iincludes
+    - -lSDL2
+  CompilationDatabase: .
