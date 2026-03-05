@@ -75,12 +75,14 @@ def gen() -> int:
             f.write(b'\x01') # list seperator
             f.write(str(data[dir]['offset']).encode())
             f.write(b'\x00') # Null byte seperator
-        f.write(open(f'data/pokered/gfx/maps/{data["ReadableName"]}','rb').read())
+        f.write(open(f'data/pokered/maps/{data["ReadableName"].removesuffix("Copy")}.blk','rb').read())
 
         sys.stdout.write(f'\33[2K\r')
         sys.stdout.write(f'Wrote map {idx+1}/{length}')
 
     sys.stdout.write('\n')
+
+    shutil.copytree('data/pokered/gfx/blocksets','data/bst')
  
     #shutil.rmtree("data/pokered")
     return 0
