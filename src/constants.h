@@ -7,7 +7,7 @@
 
 #define MAPS_FOLDER "data/maps/"
 #define BLOCKSETS_FOLDER "data/bst"
-#define DEBUG
+//#define DEBUG
 #define TILE_SIZE 8
 
 #endif

@@ -92,11 +92,6 @@ void parse_map(char *buffer, size_t len, struct map *m, char **bst_name_out) {
     m->width    = atoi(next_field(&ptr, end));
     m->height   = atoi(next_field(&ptr, end));
     m->map_data = till_end(&ptr, end);
-    printf("Map: %s | width: %d | height: %d\n", m->name, m->width, m->height);
-    printf("First 10 map bytes: ");
-    for (int j = 0; j < 10; j++)
-        printf("%02x ", (unsigned char)m->map_data[j]);
-    printf("\n");
 }
 
 void loadBlockSets() {
@@ -175,7 +170,7 @@ void loadMaps() {
     struct map m = {0};
     char *bst_name = NULL;
     parse_map(buffer, bytes_read, &m, &bst_name);
-    m.bst = shgetp_null(bsts, bst_name);
+    m.bst = (struct blockSet *)shgetp_null(bsts, bst_name);
     if (!m.bst) { printf("ERROR: blockset '%s' not found, skipping map '%s'\n", bst_name, m.name); continue; }
     m.bst = &shget(bsts, m.bst->name);
 
