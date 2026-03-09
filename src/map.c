@@ -4,7 +4,6 @@
 #include "constants.h"
 #include "tinydir.h"
 #include <stdbool.h>
-#include <ctype.h>
 
 struct blockSet {
   char *name;

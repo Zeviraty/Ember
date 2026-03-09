@@ -52,6 +52,16 @@ int sign(int x)
     return (x>>31) | ((unsigned)-x >> 31);
 }
 
+void update_maps(struct map **map, struct map **north,
+                 struct map **east, struct map **south,
+                 struct map **west, char *mapstr) {
+    *map   = get_map(mapstr);
+    *north = (*map)->north.name ? get_map((*map)->north.name) : NULL;
+    *east  = (*map)->east.name  ? get_map((*map)->east.name)  : NULL;
+    *south = (*map)->south.name ? get_map((*map)->south.name) : NULL;
+    *west  = (*map)->west.name  ? get_map((*map)->west.name)  : NULL;
+}
+
 int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
@@ -72,11 +82,15 @@ int main(int argc, char *argv[]) {
     SDL_Texture *tileset = loadTileset(renderer, "data/tilesets/overworld.png");
     SDL_Texture *player_sheet = loadTileset(renderer, "data/sprites/red.png");
 
-    struct map *map = get_map("PalletTown");
-    struct map *north = map->north.name ? get_map(map->north.name) : NULL;
-    struct map *east  = map->east.name  ? get_map(map->east.name)  : NULL;
-    struct map *south = map->south.name ? get_map(map->south.name) : NULL;
-    struct map *west  = map->west.name  ? get_map(map->west.name)  : NULL;
+    struct map *map;
+    struct map *north; 
+    struct map *east;
+    struct map *south; 
+    struct map *west;
+
+    update_maps(&map, &north,
+                &east, &south,
+                &west, "PalletTown");
 
     struct Player player = {
         (map->width  / 2) * METABLOCK_SIZE,
