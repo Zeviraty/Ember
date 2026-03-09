@@ -13,6 +13,6 @@ void drawTile(SDL_Renderer *renderer, SDL_Texture *tileset,
 void drawBlock(SDL_Renderer *renderer, SDL_Texture *tileset,
                char *blockset, int block_id, int dest_x, int dest_y);
 void drawSprite(SDL_Renderer *renderer, SDL_Texture *tileset,
-                int sprite_id, int dest_x, int dest_y);
+                int sprite_id, int dest_x, int dest_y, SDL_RendererFlip flip);
 
 #endif

@@ -201,6 +201,7 @@ struct block get_block(char *blstr, int block_index) {
 }
 
 struct map* get_map(char *map) {
+    if (!map || map[0] == '\0') return NULL;
     int idx = shgeti(maps, map);
     if (idx < 0) { printf("ERROR: map '%s' not found\n", map); exit(1); }
     return &maps[idx].value;

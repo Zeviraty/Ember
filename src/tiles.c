@@ -38,6 +38,26 @@ void drawTile(SDL_Renderer *renderer, SDL_Texture *tileset,
     SDL_RenderCopy(renderer, tileset, &src, &dst);
 }
 
+void drawTileEx(SDL_Renderer *renderer, SDL_Texture *tileset, 
+                int tile_index, int dest_x, int dest_y,
+                double angle, SDL_Point *center, SDL_RendererFlip flip) {
+    int tileset_width_in_tiles = getsize(tileset).x / TILE_SIZE;
+    int tile_col = tile_index % tileset_width_in_tiles;
+    int tile_row = tile_index / tileset_width_in_tiles;
+
+    SDL_Rect src = {
+        tile_col * TILE_SIZE,
+        tile_row * TILE_SIZE,
+        TILE_SIZE, TILE_SIZE
+    };
+    SDL_Rect dst = {
+        dest_x, dest_y,
+        TILE_SIZE * SCREEN_SCALE, TILE_SIZE * SCREEN_SCALE  // scale up if needed
+    };
+
+    SDL_RenderCopyEx(renderer, tileset, &src, &dst, angle, center, flip);
+}
+
 void drawBlock(SDL_Renderer *renderer, SDL_Texture *tileset,
                char *blockset, int block_id, int dest_x, int dest_y) {
     struct block bl = get_block(blockset, block_id);
@@ -49,10 +69,16 @@ void drawBlock(SDL_Renderer *renderer, SDL_Texture *tileset,
 }
 
 void drawSprite(SDL_Renderer *renderer, SDL_Texture *tileset,
-                int sprite_id, int dest_x, int dest_y) {
+                int sprite_id, int dest_x, int dest_y, SDL_RendererFlip flip) {
+    int flipx = flip == SDL_FLIP_HORIZONTAL;
+    int flipy = flip == SDL_FLIP_VERTICAL;
     for (int y = 0; y < 2; y++)
-      for (int x = 0; x < 2; x++)
-          drawTile(renderer, tileset, (y+(sprite_id*2))*2+x,
-              dest_x + x * TILE_SIZE * SCREEN_SCALE,
-              dest_y + y * TILE_SIZE * SCREEN_SCALE);
+      for (int x = 0; x < 2; x++) {
+        const int src_y = flipy ? 1-y : y;
+        const int src_x = flipx ? 1-x : x;
+        drawTileEx(renderer, tileset, (src_y + (sprite_id * 2)) * 2 + src_x,
+            dest_x + x * TILE_SIZE * SCREEN_SCALE,
+            dest_y + y * TILE_SIZE * SCREEN_SCALE,
+            0, NULL, flip);
+      }
 }

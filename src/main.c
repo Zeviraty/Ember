@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include "tiles.h"
 #include "player.h"
+#include "stdbool.h"
 
 int init_rendering(SDL_Window **window, SDL_Renderer **renderer) {
     if (SDL_Init( SDL_INIT_VIDEO ) < 0) {
@@ -66,13 +67,23 @@ int main(int argc, char *argv[]) {
 
     SDL_Texture *tileset = loadTileset(renderer, "data/tilesets/overworld.png");
     SDL_Texture *player_sheet = loadTileset(renderer, "data/sprites/red.png");
+
     struct map *map = get_map("PalletTown");
+    struct map *north = get_map(map->north.name);
+    struct map *east = get_map(map->east.name);
+    struct map *south = get_map(map->south.name);
+    struct map *west = get_map(map->west.name);
 
     struct Player player = {
         (map->width  / 2) * METABLOCK_SIZE,
         (map->height / 2) * METABLOCK_SIZE,
         0, 0
     };
+
+    uint cycle = 0;
+    bool alt_sprite = 0;
+    bool facing_flip = 0;
+    int facing = 0;
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -136,12 +147,40 @@ int main(int argc, char *argv[]) {
                   (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
           }
 
-        drawSprite(renderer, player_sheet, 0,
+        if (player.xvel != 0 || player.yvel != 0) cycle++;
+        else alt_sprite = 0;
+
+        if (player.xvel > 0) { facing = 2; facing_flip = 1; }
+        if (player.xvel < 0) { facing = 2; facing_flip = 0; }
+        if (player.yvel > 0) { facing = 0; }
+        if (player.yvel < 0) { facing = 1; }
+
+        int step = (cycle / 4) % 4;
+        alt_sprite = (step & 1) != 0;
+
+        bool flip = 0;
+
+        if (facing == 2)
+            flip = facing_flip;
+        else
+            flip = (step & 2) != 0;
+
+        int sprite = facing;
+        if (alt_sprite) sprite += 3;
+
+        if (flip)
+          drawSprite(renderer, player_sheet, sprite,
                   CAM_OFFSET_X * SCREEN_SCALE,
-                  CAM_OFFSET_Y * SCREEN_SCALE);
+                  CAM_OFFSET_Y * SCREEN_SCALE,
+                  SDL_FLIP_HORIZONTAL);
+        else
+          drawSprite(renderer, player_sheet, sprite,
+                  CAM_OFFSET_X * SCREEN_SCALE,
+                  CAM_OFFSET_Y * SCREEN_SCALE,
+                  SDL_FLIP_NONE);
 
         SDL_RenderPresent(renderer);
-
+        
         SDL_Delay(16);
     }
 
