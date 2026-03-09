@@ -7,6 +7,10 @@
 #include "player.h"
 #include "stdbool.h"
 
+#ifdef WINDOWS
+#include <math.h>
+#endif
+
 int init_rendering(SDL_Window **window, SDL_Renderer **renderer) {
     if (SDL_Init( SDL_INIT_VIDEO ) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -69,10 +73,10 @@ int main(int argc, char *argv[]) {
     SDL_Texture *player_sheet = loadTileset(renderer, "data/sprites/red.png");
 
     struct map *map = get_map("PalletTown");
-    struct map *north = get_map(map->north.name);
-    struct map *east = get_map(map->east.name);
-    struct map *south = get_map(map->south.name);
-    struct map *west = get_map(map->west.name);
+    struct map *north = map->north.name ? get_map(map->north.name) : NULL;
+    struct map *east  = map->east.name  ? get_map(map->east.name)  : NULL;
+    struct map *south = map->south.name ? get_map(map->south.name) : NULL;
+    struct map *west  = map->west.name  ? get_map(map->west.name)  : NULL;
 
     struct Player player = {
         (map->width  / 2) * METABLOCK_SIZE,
@@ -80,7 +84,7 @@ int main(int argc, char *argv[]) {
         0, 0
     };
 
-    uint cycle = 0;
+    int cycle = 0;
     bool alt_sprite = 0;
     bool facing_flip = 0;
     int facing = 0;

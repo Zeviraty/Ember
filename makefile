@@ -21,6 +21,7 @@ win: $(WIN_OBJ)
 		-L$(WIN_SDL_IMAGE)/lib \
 		-lmingw32 -lSDL2main $(LDFLAGS) \
 		-mwindows \
+		-DWINDOWS \
 		-o build/ember.exe
 	cp $(WIN_SDL)/bin/SDL2.dll build/
 	cp $(WIN_SDL_IMAGE)/bin/SDL2_image.dll build/
@@ -32,6 +33,7 @@ build/win_%.o: src/%.c
 		-I$(WIN_SDL)/include/SDL2 \
 		-I$(WIN_SDL_IMAGE)/include \
 		-I$(WIN_SDL_IMAGE)/include/SDL2 \
+		-DWINDOWS \
 		-c $< -o $@
 
 $(TARGET): $(OBJ)
