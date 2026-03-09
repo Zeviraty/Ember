@@ -68,7 +68,11 @@ int main(int argc, char *argv[]) {
     SDL_Texture *player_sheet = loadTileset(renderer, "data/sprites/red.png");
     struct map *map = get_map("PalletTown");
 
-    struct Player player = {0,0,0,0};
+    struct Player player = {
+        (map->width  / 2) * METABLOCK_SIZE,
+        (map->height / 2) * METABLOCK_SIZE,
+        0, 0
+    };
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -122,11 +126,15 @@ int main(int argc, char *argv[]) {
         int pixel_off_y = cam_y - block_y * METABLOCK_SIZE;
 
         for (int y = 0; y < SCREEN_BLOCKS_H; y++)
-          for (int x = 0; x < SCREEN_BLOCKS_W; x++)
+          for (int x = 0; x < SCREEN_BLOCKS_W; x++) {
+              int bx = x + block_x;
+              int by = y + block_y;
+              if (bx < 0 || by < 0 || bx >= map->width || by >= map->height) continue; // IMPLEMETN GETTING BLOCKS OF CONNECTED MAPS
               drawBlock(renderer, tileset, map->bst->name,
-                  (unsigned char)map->map_data[(y+block_y) * map->width + (x+block_x)],
+                  (unsigned char)map->map_data[by * map->width + bx],
                   (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
                   (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
+          }
 
         drawSprite(renderer, player_sheet, 0,
                   CAM_OFFSET_X * SCREEN_SCALE,
