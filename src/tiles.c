@@ -7,6 +7,7 @@
 SDL_Texture *loadTileset(SDL_Renderer *renderer, const char *path) {
     SDL_Surface *surf = IMG_Load(path);
     if (!surf) { printf("IMG_Load error: %s\n", IMG_GetError()); return NULL; }
+    SDL_SetColorKey(surf, SDL_TRUE, SDL_MapRGB(surf->format, 255, 255, 255));
     SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, surf);
     SDL_FreeSurface(surf);
     return tex;
@@ -47,3 +48,11 @@ void drawBlock(SDL_Renderer *renderer, SDL_Texture *tileset,
               dest_y + y * TILE_SIZE * SCREEN_SCALE);
 }
 
+void drawSprite(SDL_Renderer *renderer, SDL_Texture *tileset,
+                int sprite_id, int dest_x, int dest_y) {
+    for (int y = 0; y < 2; y++)
+      for (int x = 0; x < 2; x++)
+          drawTile(renderer, tileset, (y+(sprite_id*2))*2+x,
+              dest_x + x * TILE_SIZE * SCREEN_SCALE,
+              dest_y + y * TILE_SIZE * SCREEN_SCALE);
+}

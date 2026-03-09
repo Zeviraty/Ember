@@ -115,6 +115,7 @@ def gen() -> int:
     bst_path = 'data/bst'
     shutil.copytree('data/pokered/gfx/blocksets',bst_path)
     shutil.copytree('data/pokered/gfx/tilesets','data/tilesets')
+    shutil.copytree('data/pokered/gfx/sprites','data/sprites')
     for file in os.listdir(bst_path):
         shutil.move(bst_path+os.sep+file,bst_path+os.sep+file.removesuffix('.bst').upper())
  

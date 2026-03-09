@@ -4,6 +4,7 @@
 #include "map.h"
 #include <SDL2/SDL_image.h>
 #include "tiles.h"
+#include "player.h"
 
 int init_rendering(SDL_Window **window, SDL_Renderer **renderer) {
     if (SDL_Init( SDL_INIT_VIDEO ) < 0) {
@@ -41,6 +42,11 @@ int init_rendering(SDL_Window **window, SDL_Renderer **renderer) {
     return 0;
 };
 
+int sign(int x)
+{
+    return (x>>31) | ((unsigned)-x >> 31);
+}
+
 int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
@@ -59,7 +65,10 @@ int main(int argc, char *argv[]) {
     SDL_Event event;
 
     SDL_Texture *tileset = loadTileset(renderer, "data/tilesets/overworld.png");
+    SDL_Texture *player_sheet = loadTileset(renderer, "data/sprites/red.png");
     struct map *map = get_map("PalletTown");
+
+    struct Player player = {0,0,0,0};
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -69,11 +78,22 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SDL_KEYDOWN:
-                printf( "Key press detected\n" );
-                break;
-
-              case SDL_KEYUP:
-                printf( "Key release detected\n" );
+                switch( event.key.keysym.sym ) {
+                    case SDLK_LEFT:
+                        if (player.xvel == 0 && player.yvel == 0) player.xvel = -1 * (TILE_SIZE*2);
+                        break;
+                    case SDLK_RIGHT:
+                        if (player.xvel == 0 && player.yvel == 0) player.xvel =  1 * (TILE_SIZE*2);
+                        break;
+                    case SDLK_UP:
+                        if (player.xvel == 0 && player.yvel == 0) player.yvel = -1 * (TILE_SIZE*2);
+                        break;
+                    case SDLK_DOWN:
+                        if (player.xvel == 0 && player.yvel == 0) player.yvel =  1 * (TILE_SIZE*2);
+                        break;
+                    default:
+                        break;
+                };
                 break;
 
               default:
@@ -81,15 +101,36 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        if (player.xvel != 0) {
+          player.x += sign(player.xvel);
+          player.xvel -= sign(player.xvel);
+        };
+        if (player.yvel != 0) {
+          player.y += sign(player.yvel);
+          player.yvel -= sign(player.yvel);
+        };
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
 
-        for (int y = 0; y < map->height; y++)
-          for (int x = 0; x < map->width; x++)
+        int cam_x = player.x - CAM_OFFSET_X;
+        int cam_y = player.y - CAM_OFFSET_Y;
+
+        int block_x = (int)floor((double)cam_x / METABLOCK_SIZE);
+        int block_y = (int)floor((double)cam_y / METABLOCK_SIZE);
+
+        int pixel_off_x = cam_x - block_x * METABLOCK_SIZE;
+        int pixel_off_y = cam_y - block_y * METABLOCK_SIZE;
+
+        for (int y = 0; y < SCREEN_BLOCKS_H; y++)
+          for (int x = 0; x < SCREEN_BLOCKS_W; x++)
               drawBlock(renderer, tileset, map->bst->name,
-                  (unsigned char)map->map_data[y * map->width + x],
-                  x * TILE_SIZE * 4 * SCREEN_SCALE,
-                  y * TILE_SIZE * 4 * SCREEN_SCALE);
+                  (unsigned char)map->map_data[(y+block_y) * map->width + (x+block_x)],
+                  (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
+                  (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
+
+        drawSprite(renderer, player_sheet, 0,
+                  CAM_OFFSET_X * SCREEN_SCALE,
+                  CAM_OFFSET_Y * SCREEN_SCALE);
 
         SDL_RenderPresent(renderer);
 

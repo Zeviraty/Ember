@@ -121,7 +121,6 @@ void loadBlockSets() {
     fread(buffer, 1, fsize, fptr);
     fclose(fptr);
 
-
     struct blockSet bst = {0};
     bst.name = strdup(file.name);
     bst.block_data = buffer;
@@ -144,8 +143,6 @@ void loadMaps() {
   printf("Opening: %s\n", MAPS_FOLDER);
   printf("Found %zu maps\n", dir.n_files);
 #endif
-
-
 
   if (!LOADED_BSTS) { printf("ERROR: BLOCKSETS HAVE NOT LOADED BEFORE MAPS"); exit(1); }
 
