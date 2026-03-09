@@ -158,15 +158,24 @@ int main(int argc, char *argv[]) {
           for (int x = 0; x < SCREEN_BLOCKS_W+1; x++) {
               int bx = x + block_x;
               int by = y + block_y;
-              if (bx < 0 || by < 0 || bx >= map->width || by >= map->height) {
-                drawBlock(renderer, tileset, map->bst->name,
-                    (unsigned char)map->border_block,
-                    (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
-                    (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
-                continue;
+
+              struct map *m = map;
+              int lx = bx, ly = by;
+
+              if      (by < 0            && north) { m = north; lx = bx - map->north.offset / 2; ly = by + north->height; }
+              else if (by >= map->height && south) { m = south; lx = bx - map->south.offset / 2; ly = by - map->height; }
+              else if (bx < 0            && west)  { m = west;  lx = bx + west->width;            ly = by - map->west.offset / 2; }
+              else if (bx >= map->width  && east)  { m = east;  lx = bx - map->width;             ly = by - map->east.offset / 2; }
+
+              if (lx < 0 || ly < 0 || lx >= m->width || ly >= m->height) {
+                  drawBlock(renderer, tileset, map->bst->name, (unsigned char)map->border_block,
+                      (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
+                      (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
+                  continue;
               }
-              drawBlock(renderer, tileset, map->bst->name,
-                  (unsigned char)map->map_data[by * map->width + bx],
+
+              drawBlock(renderer, tileset, m->bst->name,
+                  (unsigned char)m->map_data[ly * m->width + lx],
                   (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
                   (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
           }
@@ -178,6 +187,17 @@ int main(int argc, char *argv[]) {
         if (player.xvel < 0) { facing = 2; facing_flip = 0; }
         if (player.yvel > 0) { facing = 0; }
         if (player.yvel < 0) { facing = 1; }
+
+        char *update_map = NULL;
+        if      (player.y / METABLOCK_SIZE < 0            && north) { update_map = north->name; player.y += north->height * METABLOCK_SIZE; player.x -= map->north.offset / 2 * METABLOCK_SIZE; }
+        else if (player.y / METABLOCK_SIZE >= map->height && south) { update_map = south->name; player.y -= map->height   * METABLOCK_SIZE; player.x -= map->south.offset / 2 * METABLOCK_SIZE; }
+        else if (player.x / METABLOCK_SIZE < 0            && west)  { update_map = west->name;  player.x += west->width   * METABLOCK_SIZE; player.y -= map->west.offset  / 2 * METABLOCK_SIZE; }
+        else if (player.x / METABLOCK_SIZE >= map->width  && east)  { update_map = east->name;  player.x -= map->width    * METABLOCK_SIZE; player.y -= map->east.offset  / 2 * METABLOCK_SIZE; }
+
+        if (update_map)
+          update_maps(&map, &north,
+                      &east, &south,
+                      &west, update_map);
 
         int step = (cycle / 4) % 4;
         alt_sprite = (step & 1) != 0;
