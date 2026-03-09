@@ -163,6 +163,7 @@ int main(int argc, char *argv[]) {
                     (unsigned char)map->border_block,
                     (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
                     (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
+                continue;
               }
               drawBlock(renderer, tileset, map->bst->name,
                   (unsigned char)map->map_data[by * map->width + bx],
