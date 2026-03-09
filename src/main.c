@@ -106,12 +106,12 @@ int main(int argc, char *argv[]) {
         }
 
         if (player.xvel != 0) {
-          player.x += sign(player.xvel);
-          player.xvel -= sign(player.xvel);
+          player.x += sign(player.xvel)*2;
+          player.xvel -= sign(player.xvel)*2;
         };
         if (player.yvel != 0) {
-          player.y += sign(player.yvel);
-          player.yvel -= sign(player.yvel);
+          player.y += sign(player.yvel)*2;
+          player.yvel -= sign(player.yvel)*2;
         };
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
@@ -125,8 +125,8 @@ int main(int argc, char *argv[]) {
         int pixel_off_x = cam_x - block_x * METABLOCK_SIZE;
         int pixel_off_y = cam_y - block_y * METABLOCK_SIZE;
 
-        for (int y = 0; y < SCREEN_BLOCKS_H; y++)
-          for (int x = 0; x < SCREEN_BLOCKS_W; x++) {
+        for (int y = 0; y < SCREEN_BLOCKS_H+1; y++)
+          for (int x = 0; x < SCREEN_BLOCKS_W+1; x++) {
               int bx = x + block_x;
               int by = y + block_y;
               if (bx < 0 || by < 0 || bx >= map->width || by >= map->height) continue; // IMPLEMETN GETTING BLOCKS OF CONNECTED MAPS
