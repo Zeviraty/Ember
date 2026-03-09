@@ -45,6 +45,15 @@ def gen() -> int:
             parts.append(spl[0])
         SIZES[parts[0]] = {'x': parts[1], 'y': parts[2]}
 
+    BORDERS = {}
+    for name in os.listdir('data/pokered/data/maps/objects'):
+        m = open('data/pokered/data/maps/objects/'+name,'r').read()
+        for line in m.splitlines():
+            if not line.strip().startswith("db"):
+                continue
+            BORDERS[name.removesuffix('.asm')] = int(line.split(" ")[1].removeprefix('$'), 16)
+            break
+
     headers = os.listdir(HEADER_FOLDER)
     length = len(headers)
 
@@ -103,6 +112,8 @@ def gen() -> int:
         f.write(str(SIZES[data['ID']]['x']).encode())
         f.write(b'\x00')
         f.write(str(SIZES[data['ID']]['y']).encode())
+        f.write(b'\x00')
+        f.write(str(BORDERS[data['ReadableName']]).encode())
         f.write(b'\x00')
 
         f.write(open(f'data/pokered/maps/{data["ReadableName"].removesuffix("Copy")}.blk','rb').read())

@@ -88,9 +88,10 @@ void parse_map(char *buffer, size_t len, struct map *m, char **bst_name_out) {
         dirs[d]->name   = rname;
         dirs[d]->offset = offset;
     }
-    m->width    = atoi(next_field(&ptr, end));
-    m->height   = atoi(next_field(&ptr, end));
-    m->map_data = till_end(&ptr, end);
+    m->width        = atoi(next_field(&ptr, end));
+    m->height       = atoi(next_field(&ptr, end));
+    m->border_block = atoi(next_field(&ptr, end));
+    m->map_data     = till_end(&ptr, end);
 }
 
 void loadBlockSets() {

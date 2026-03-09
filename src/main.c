@@ -158,7 +158,12 @@ int main(int argc, char *argv[]) {
           for (int x = 0; x < SCREEN_BLOCKS_W+1; x++) {
               int bx = x + block_x;
               int by = y + block_y;
-              if (bx < 0 || by < 0 || bx >= map->width || by >= map->height) continue; // IMPLEMETN GETTING BLOCKS OF CONNECTED MAPS
+              if (bx < 0 || by < 0 || bx >= map->width || by >= map->height) {
+                drawBlock(renderer, tileset, map->bst->name,
+                    (unsigned char)map->border_block,
+                    (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
+                    (y * METABLOCK_SIZE - pixel_off_y) * SCREEN_SCALE);
+              }
               drawBlock(renderer, tileset, map->bst->name,
                   (unsigned char)map->map_data[by * map->width + bx],
                   (x * METABLOCK_SIZE - pixel_off_x) * SCREEN_SCALE,
