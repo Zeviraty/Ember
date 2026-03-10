@@ -103,6 +103,11 @@ int main(int argc, char *argv[]) {
     bool facing_flip = 0;
     int facing = 0;
 
+    bool l=0;
+    bool r=0;
+    bool u=0;
+    bool d=0;
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             switch( event.type ){
@@ -112,18 +117,21 @@ int main(int argc, char *argv[]) {
 
               case SDL_KEYDOWN:
                 switch( event.key.keysym.sym ) {
-                    case SDLK_LEFT:
-                        if (player.xvel == 0 && player.yvel == 0) player.xvel = -1 * (TILE_SIZE*2);
+                    case SDLK_LEFT:  l=1; break;
+                    case SDLK_RIGHT: r=1; break;
+                    case SDLK_UP:    u=1; break;
+                    case SDLK_DOWN:  d=1; break;
+                    default:
                         break;
-                    case SDLK_RIGHT:
-                        if (player.xvel == 0 && player.yvel == 0) player.xvel =  1 * (TILE_SIZE*2);
-                        break;
-                    case SDLK_UP:
-                        if (player.xvel == 0 && player.yvel == 0) player.yvel = -1 * (TILE_SIZE*2);
-                        break;
-                    case SDLK_DOWN:
-                        if (player.xvel == 0 && player.yvel == 0) player.yvel =  1 * (TILE_SIZE*2);
-                        break;
+                };
+                break;
+
+              case SDL_KEYUP:
+                switch( event.key.keysym.sym ) {
+                    case SDLK_LEFT:  l=0; break;
+                    case SDLK_RIGHT: r=0; break;
+                    case SDLK_UP:    u=0; break;
+                    case SDLK_DOWN:  d=0; break;
                     default:
                         break;
                 };
@@ -134,13 +142,18 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        if (l && player.xvel == 0 && player.yvel == 0) player.xvel = -1 * (TILE_SIZE*2);
+        if (r && player.xvel == 0 && player.yvel == 0) player.xvel =  1 * (TILE_SIZE*2);
+        if (u && player.xvel == 0 && player.yvel == 0) player.yvel = -1 * (TILE_SIZE*2);
+        if (d && player.xvel == 0 && player.yvel == 0) player.yvel =  1 * (TILE_SIZE*2);
+
         if (player.xvel != 0) {
-          player.x += sign(player.xvel)*2;
-          player.xvel -= sign(player.xvel)*2;
+          player.x += sign(player.xvel)*4;
+          player.xvel -= sign(player.xvel)*4;
         };
         if (player.yvel != 0) {
-          player.y += sign(player.yvel)*2;
-          player.yvel -= sign(player.yvel)*2;
+          player.y += sign(player.yvel)*4;
+          player.yvel -= sign(player.yvel)*4;
         };
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
@@ -162,10 +175,10 @@ int main(int argc, char *argv[]) {
               struct map *m = map;
               int lx = bx, ly = by;
 
-              if      (by < 0            && north) { m = north; lx = bx - map->north.offset / 2; ly = by + north->height; }
-              else if (by >= map->height && south) { m = south; lx = bx - map->south.offset / 2; ly = by - map->height; }
-              else if (bx < 0            && west)  { m = west;  lx = bx + west->width;            ly = by - map->west.offset / 2; }
-              else if (bx >= map->width  && east)  { m = east;  lx = bx - map->width;             ly = by - map->east.offset / 2; }
+              if      (by < 0            && north) { m = north; lx = bx - map->north.offset; ly = by + north->height; }
+              else if (by >= map->height && south) { m = south; lx = bx - map->south.offset; ly = by - map->height; }
+              else if (bx < 0            && west)  { m = west;  lx = bx + west->width;            ly = by - map->west.offset; }
+              else if (bx >= map->width  && east)  { m = east;  lx = bx - map->width;             ly = by - map->east.offset; }
 
               if (lx < 0 || ly < 0 || lx >= m->width || ly >= m->height) {
                   drawBlock(renderer, tileset, map->bst->name, (unsigned char)map->border_block,
@@ -189,25 +202,27 @@ int main(int argc, char *argv[]) {
         if (player.yvel < 0) { facing = 1; }
 
         char *update_map = NULL;
-        if      (player.y / METABLOCK_SIZE < 0            && north) { update_map = north->name; player.y += north->height * METABLOCK_SIZE; player.x -= map->north.offset / 2 * METABLOCK_SIZE; }
-        else if (player.y / METABLOCK_SIZE >= map->height && south) { update_map = south->name; player.y -= map->height   * METABLOCK_SIZE; player.x -= map->south.offset / 2 * METABLOCK_SIZE; }
-        else if (player.x / METABLOCK_SIZE < 0            && west)  { update_map = west->name;  player.x += west->width   * METABLOCK_SIZE; player.y -= map->west.offset  / 2 * METABLOCK_SIZE; }
-        else if (player.x / METABLOCK_SIZE >= map->width  && east)  { update_map = east->name;  player.x -= map->width    * METABLOCK_SIZE; player.y -= map->east.offset  / 2 * METABLOCK_SIZE; }
+        int new_player_x = player.x;
+        int new_player_y = player.y;
 
-        if (update_map)
-          update_maps(&map, &north,
-                      &east, &south,
-                      &west, update_map);
+        if      (player.y / METABLOCK_SIZE < 0            && north) { update_map = north->name; new_player_y += north->height * METABLOCK_SIZE; new_player_x -= map->north.offset * METABLOCK_SIZE; }
+        else if (player.y / METABLOCK_SIZE >= map->height && south) { update_map = south->name; new_player_y -= map->height   * METABLOCK_SIZE; new_player_x -= map->south.offset * METABLOCK_SIZE; }
+        else if (player.x / METABLOCK_SIZE < 0            && west)  { update_map = west->name;  new_player_x += west->width   * METABLOCK_SIZE; new_player_y -= map->west.offset  * METABLOCK_SIZE; }
+        else if (player.x / METABLOCK_SIZE >= map->width  && east)  { update_map = east->name;  new_player_x -= map->width    * METABLOCK_SIZE; new_player_y += map->east.offset  * METABLOCK_SIZE; }
+
+        if (update_map) {
+            update_maps(&map, &north, &east, &south, &west, update_map);
+            player.x = new_player_x;
+            player.y = new_player_y;
+        }
 
         int step = (cycle / 4) % 4;
         alt_sprite = (step & 1) != 0;
 
         bool flip = 0;
 
-        if (facing == 2)
-            flip = facing_flip;
-        else
-            flip = (step & 2) != 0;
+        if (facing == 2) flip = facing_flip;
+        else flip = (step & 2) != 0;
 
         int sprite = facing;
         if (alt_sprite) sprite += 3;
@@ -224,7 +239,6 @@ int main(int argc, char *argv[]) {
                   SDL_FLIP_NONE);
 
         SDL_RenderPresent(renderer);
-        
         SDL_Delay(16);
     }
 
