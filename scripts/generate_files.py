@@ -130,7 +130,6 @@ def gen() -> int:
     for file in os.listdir(bst_path):
         shutil.move(bst_path+os.sep+file,bst_path+os.sep+file.removesuffix('.bst').upper())
  
-    #shutil.rmtree("data/pokered")
     return 0
 
 if __name__ == '__main__':
