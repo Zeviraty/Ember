@@ -1,3 +1,6 @@
+> [!WARNING]
+> This project has been moved to [sr.ht](https://sr.ht/~zevvi/Ember/)
+
 # Ember
 
 This is a remake of pokemon red in C
