@@ -1,5 +1,5 @@
 > [!WARNING]
-> This project has been moved to [sr.ht](https://sr.ht/~zevvi/Ember/)
+> This project has been moved to [sr.ht](https://git.sr.ht/~zevvi/Ember/)
 
 # Ember
 
